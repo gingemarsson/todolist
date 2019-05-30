@@ -43,8 +43,8 @@ namespace TodoList.Api
                 swagger.IncludeXmlComments(xmlPath);
             });
 
-            services.AddTransient<ITodoItemService, TodoItemService>();
-            services.AddTransient<ITodoItemRepository, TodoItemRepository>();
+            services.AddTransient<ITodoService, TodoService>();
+            services.AddTransient<ITodoRepository, TodoRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
