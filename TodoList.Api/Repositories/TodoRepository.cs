@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Options;
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
@@ -9,17 +10,18 @@ namespace TodoList.Api.Repositories
 {
     public class TodoRepository : ITodoRepository
     {
-        private readonly string _connectionString;
-        public TodoRepository()
+        private readonly DatabaseConnectionOptions _databaseConnectionOptions;
+
+        public TodoRepository(IOptionsMonitor<DatabaseConnectionOptions> optionsAccessor)
         {
-            _connectionString = "Server=localhost\\SQLEXPRESS;Database=TodoList;Trusted_Connection=True;"; // TODO: Remove hardcoded string
+            _databaseConnectionOptions = optionsAccessor.CurrentValue;
         }
 
         // Items:
 
         public TodoItem GetItem(Guid listId, Guid id)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_databaseConnectionOptions.connectionString))
             {
                 connection.Open();
                 using (var command = new SqlCommand($"SELECT * FROM TodoItems WHERE Id=@Id AND ListId=@ListId AND Deleted=0", connection)) 
@@ -45,7 +47,7 @@ namespace TodoList.Api.Repositories
         public IEnumerable<TodoItem> GetAllItemsofList(Guid listId)
         {
             var todoItems = new List<TodoItem>();
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_databaseConnectionOptions.connectionString))
             {
                 connection.Open();
                 using (var command = new SqlCommand("SELECT * FROM TodoItems WHERE ListId=@ListId AND Deleted=0", connection))
@@ -69,7 +71,7 @@ namespace TodoList.Api.Repositories
 
         public TodoItem SaveItem(Guid listId, TodoItem item)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_databaseConnectionOptions.connectionString))
             {
                 connection.Open();
                 using (var command = new SqlCommand($"INSERT INTO TodoItems(Id, Name, Description, Done, Deleted, ListId) VALUES(@Id, @Name, @Description, @Done, 0, @ListId)", connection))
@@ -89,7 +91,7 @@ namespace TodoList.Api.Repositories
 
         public TodoItem UpdateItem(Guid listId, TodoItem item)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_databaseConnectionOptions.connectionString))
             {
                 connection.Open();
                 using (var command = new SqlCommand($"UPDATE TodoItems SET Name = @Name, Description = @Description, Done = @Done WHERE Id = @Id AND ListId=@ListId", connection))
@@ -109,7 +111,7 @@ namespace TodoList.Api.Repositories
 
         public bool MarkItemAsDeleted(Guid listId, Guid id)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_databaseConnectionOptions.connectionString))
             {
                 connection.Open();
                 using (var command = new SqlCommand($"UPDATE TodoItems SET Deleted = 1 WHERE Id = @Id AND ListId=@ListId", connection))
@@ -127,7 +129,7 @@ namespace TodoList.Api.Repositories
 
         public TodoItemList GetList(Guid id)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_databaseConnectionOptions.connectionString))
             {
                 connection.Open();
                 using (var command = new SqlCommand($"SELECT * FROM TodoLists WHERE Id=@Id AND Deleted=0", connection))
@@ -151,7 +153,7 @@ namespace TodoList.Api.Repositories
         public IEnumerable<TodoItemList> GetAllLists()
         {
             var todoItemLists = new List<TodoItemList>();
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_databaseConnectionOptions.connectionString))
             {
                 connection.Open();
                 using (var command = new SqlCommand("SELECT * FROM TodoLists WHERE Deleted=0", connection))
@@ -172,7 +174,7 @@ namespace TodoList.Api.Repositories
 
         public TodoItemList SaveList(TodoItemList list)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_databaseConnectionOptions.connectionString))
             {
                 connection.Open();
                 using (var command = new SqlCommand($"INSERT INTO TodoLists VALUES(@Id, @Name, 0)", connection))
@@ -189,7 +191,7 @@ namespace TodoList.Api.Repositories
 
         public TodoItemList UpdateList(TodoItemList list)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_databaseConnectionOptions.connectionString))
             {
                 connection.Open();
                 using (var command = new SqlCommand($"UPDATE TodoLists SET Name = @Name WHERE Id = @Id", connection))
@@ -206,7 +208,7 @@ namespace TodoList.Api.Repositories
 
         public bool MarkListAsDeleted(Guid id)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new SqlConnection(_databaseConnectionOptions.connectionString))
             {
                 connection.Open();
                 using (var command = new SqlCommand($"UPDATE TodoLists SET Deleted = 1 WHERE Id = @Id", connection))

@@ -15,6 +15,7 @@ using TodoList.Api.Repositories;
 using TodoList.Api.Services;
 using Swashbuckle.AspNetCore.Swagger;
 using System.Reflection;
+using TodoList.Api.Entities;
 
 namespace TodoList.Api
 {
@@ -42,6 +43,8 @@ namespace TodoList.Api
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 swagger.IncludeXmlComments(xmlPath);
             });
+
+            services.Configure<DatabaseConnectionOptions>(Configuration);
 
             services.AddTransient<ITodoService, TodoService>();
             services.AddTransient<ITodoRepository, TodoRepository>();
