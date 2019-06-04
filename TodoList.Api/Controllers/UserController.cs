@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using TodoList.Api.Repositories;
+using TodoList.Api.Entities;
 using TodoList.Api.Requests;
 using TodoList.Api.Services;
 

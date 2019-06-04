@@ -69,6 +69,32 @@ namespace TodoList.Api.Repositories
             return todoItems;
         }
 
+        public IEnumerable<TodoItem> GetMatchingItems(string searchString)
+        {
+            var todoItems = new List<TodoItem>();
+            using (var connection = new SqlConnection(_databaseConnectionOptions.connectionString))
+            {
+                connection.Open();
+                using (var command = new SqlCommand($"SELECT * FROM TodoItems WHERE ((Name LIKE @SearchString) OR (Description LIKE @SearchString)) AND Deleted=0", connection))
+                {
+                    command.Parameters.Add(new SqlParameter("SearchString", "%" + searchString + "%"));
+                    var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        todoItems.Add(new TodoItem
+                        {
+                            Id = Guid.Parse((string)reader["Id"]),
+                            Name = (string)reader["Name"],
+                            Description = (string)reader["Description"],
+                            Done = (bool)reader["Done"]
+                        });
+                    }
+                }
+            }
+
+            return todoItems;
+        }
+
         public TodoItem SaveItem(Guid listId, TodoItem item)
         {
             using (var connection = new SqlConnection(_databaseConnectionOptions.connectionString))
@@ -172,6 +198,29 @@ namespace TodoList.Api.Repositories
             return todoItemLists;
         }
 
+        public IEnumerable<TodoItemList> GetMatchingLists(string searchString)
+        {
+            var todoItemLists = new List<TodoItemList>();
+            using (var connection = new SqlConnection(_databaseConnectionOptions.connectionString))
+            {
+                connection.Open();
+                using (var command = new SqlCommand("SELECT * FROM TodoLists WHERE (Name LIKE @SearchString) AND Deleted=0", connection))
+                {
+                    command.Parameters.Add(new SqlParameter("SearchString", "%" + searchString + "%"));
+                    var reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        todoItemLists.Add(new TodoItemList
+                        {
+                            Id = Guid.Parse((string)reader["Id"]),
+                            Name = (string)reader["Name"]
+                        });
+                    }
+                }
+            }
+            return todoItemLists;
+        }
+
         public TodoItemList SaveList(TodoItemList list)
         {
             using (var connection = new SqlConnection(_databaseConnectionOptions.connectionString))
@@ -226,6 +275,7 @@ namespace TodoList.Api.Repositories
     {
         TodoItem GetItem(Guid id, Guid id1);
         IEnumerable<TodoItem> GetAllItemsofList(Guid listId);
+        IEnumerable<TodoItem> GetMatchingItems(string searchString);
         TodoItem SaveItem(Guid listId, TodoItem item);
         TodoItem UpdateItem(Guid listId, TodoItem item);
         bool MarkItemAsDeleted(Guid id, Guid id1);
@@ -233,6 +283,7 @@ namespace TodoList.Api.Repositories
 
         TodoItemList GetList(Guid id);
         IEnumerable<TodoItemList> GetAllLists();
+        IEnumerable<TodoItemList> GetMatchingLists(string searchString);
         TodoItemList SaveList(TodoItemList list);
         TodoItemList UpdateList(TodoItemList list);
         bool MarkListAsDeleted(Guid id);

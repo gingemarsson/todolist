@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TodoList.Api.Repositories
+namespace TodoList.Api.Entities
 {
     public class User
     {
